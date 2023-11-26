@@ -90,7 +90,7 @@ router.post("/", async (req, res, next) => {
   const response = contactSchema.validate(req.body, { abortEarly: false });
 
   if (typeof response.error !== "undefined") {
-    return res.status(400).json({ message: `missing required name field` });
+    return res.status(400).send( response.error.details.map((err) => err.message).join(', ') );
   }
 
   const { name, email, phone } = response.value;
@@ -131,7 +131,7 @@ router.put("/:contactId", async (req, res, next) => {
   const response = contactSchema.validate(req.body, { abortEarly: false });
 
   if (typeof response.error !== "undefined") {
-    return res.status(400).json({ message: "missing fields" });
+    return res.status(400).send( response.error.details.map((err) => err.message).join(', ') );
   }
 
   const body = response.value;
