@@ -1,5 +1,6 @@
 const Contact = require("../models/contact");
 const contactSchema = require("../schemas/contact");
+const favoriteContactSchema = require("../schemas/favoriteContact");
 
 async function updateStatusContact(id, body) {
   try {
@@ -34,7 +35,6 @@ async function listContacts(req, res, next) {
 
 async function getContactById(req, res, next) {
   const { id } = req.params;
-  console.log(id);
 
   try {
     const contact = await Contact.findById(id).exec();
@@ -119,7 +119,7 @@ async function deleteContact(req, res, next) {
 }
 
 async function patchContact(req, res, next) {
-  const response = contactSchema.validate(req.body, { abortEarly: false });
+  const response = favoriteContactSchema.validate(req.body, { abortEarly: false });
   const { id } = req.params;
 
   if (typeof response.error !== "undefined") {
@@ -130,9 +130,20 @@ async function patchContact(req, res, next) {
 
   const body = response.value;
 
-  const patchedContact = await updateStatusContact(id, body);
+  try {
+    const contact = {
+      // name: body.name,
+      // email: body.email,
+      // phone: body.phone,
+      favorite: body.favorite,
+    };
+  
+    const result = await Contact.findByIdAndUpdate(id, contact, { new: true });
 
-  res.send(patchedContact)
+    res.send(result);
+  } catch (error) {
+    console.error(error);
+  }
 }
 
 module.exports = {
