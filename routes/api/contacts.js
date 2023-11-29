@@ -8,18 +8,20 @@ const jsonParser = express.json();
 const router = express.Router();
 const contactsPath = path.join(__dirname, "../../db/contacts.json");
 const contactSchema = require("../../schemas/contact");
+const isValidId = require("../../middlewares/validId")
 
 
 router.get("/", ContactController.listContacts);
 
-router.get("/:id", ContactController.getContactById);
+router.get("/:id", isValidId, ContactController.getContactById);
 
 router.post("/", ContactController.addContact);
 
-router.delete("/:id", ContactController.deleteContact);
+router.delete("/:id", isValidId, ContactController.deleteContact);
 
-router.put("/:id", ContactController.updateContact);
+router.put("/:id", isValidId, ContactController.updateContact);
 
-router.patch("/:id/favorite", ContactController.patchContact);
+router.patch("/:id/favorite", isValidId, ContactController.patchContact);
 
 module.exports = router;
+
