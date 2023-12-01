@@ -2,27 +2,6 @@ const Contact = require("../models/contact");
 const contactSchema = require("../schemas/contact");
 const favoriteContactSchema = require("../schemas/favoriteContact");
 
-async function updateStatusContact(id, body) {
-  try {
-    const contact = {
-      name: body.name,
-      email: body.email,
-      phone: body.phone,
-      favorite: body.favorite,
-    };
-  
-    const result = await Contact.findByIdAndUpdate(id, contact, { new: true });
-
-    if (result === null) {
-      return res.status(404).json({ "message": "Not found" });
-    };
-
-    return result;
-  } catch (error) {
-    console.error(error);
-  }
-}
-
 async function listContacts(req, res, next) {
   try {
     const contacts = await Contact.find().exec();
@@ -132,9 +111,6 @@ async function patchContact(req, res, next) {
 
   try {
     const contact = {
-      // name: body.name,
-      // email: body.email,
-      // phone: body.phone,
       favorite: body.favorite,
     };
   
