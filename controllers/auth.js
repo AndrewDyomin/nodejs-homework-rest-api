@@ -4,28 +4,30 @@ const User = require("../models/user");
 const jwt = require("jsonwebtoken");
 
 async function register(req, res, next) {
-    const response = userSchema.validate(req.body, { abortEarly: false });
+  const response = userSchema.validate(req.body, { abortEarly: false });
 
-    if (typeof response.error !== "undefined") {
-      return res
-        .status(400)
-        .send(response.error.details.map((err) => err.message).join(", "));
+  if (typeof response.error !== "undefined") {
+    return res
+      .status(400)
+      .send(response.error.details.map((err) => err.message).join(", "));
+  }
+
+  const { name, email, password } = req.body;
+
+  try {
+    const user = await User.findOne({ email }).exec();
+
+    if (user !== null) {
+      return res.status(409).json({ message: "Email in use" });
     }
-
-    const { name, email, password } = req.body;
-
-    try {
-      const user = await User.findOne({ email }).exec();
-
-      if (user !== null) {
-        return res.status(409).json({ "message": "Email in use" });
-      }
 
     const passwordHash = await bcrypt.hash(password, 10);
 
     const newUser = await User.create({ name, email, password: passwordHash });
 
-    res.status(201).send({ user: { email: newUser.email, password: newUser.password } });
+    res
+      .status(201)
+      .send({ user: { email: newUser.email, password: newUser.password } });
   } catch (error) {
     next(error);
   }
@@ -55,9 +57,7 @@ async function login(req, res, next) {
 
     if (isMatch === false) {
       console.log("PASSWORD");
-      return res
-        .status(401)
-        .json({ "message": "Email or password is wrong" });
+      return res.status(401).json({ message: "Email or password is wrong" });
     }
 
     const token = jwt.sign(
@@ -68,10 +68,43 @@ async function login(req, res, next) {
 
     await User.findByIdAndUpdate(user._id, { token }).exec();
 
-    res.status(200).send({ token, user: { email: user.email, password: user.password } });
+    res
+      .status(200)
+      .send({ token, user: { email: user.email, password: user.password } });
   } catch (error) {
     next(error);
   }
 }
 
-module.exports = { register, login };
+async function logout(req, res, next) {
+  try {
+    const { email } = req.user.user;
+    const user = await User.findOne({ email }).exec();
+
+    if (user === null) {
+      return res.status(401).json({ message: "Not authorized" });
+    }
+
+    await User.findByIdAndUpdate(user.id, { token: null }).exec();
+
+    res.status(204).end();
+  } catch (error) {
+    next(error);
+  }
+}
+
+async function current(req, res, next) {
+  const { email } = req.user.user;
+  const user = await User.findOne({ email }).exec();
+  console.log(user)
+
+  if (user === null) {
+    return res.status(401).json({ message: "Not authorized" });
+  }
+
+  res
+  .status(200)
+  .send({ email: user.email, subscription: user.subscription });
+}
+
+module.exports = { register, login, logout, current };
