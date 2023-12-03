@@ -78,14 +78,9 @@ async function login(req, res, next) {
 
 async function logout(req, res, next) {
   try {
-    const { email } = req.user.user;
-    const user = await User.findOne({ email }).exec();
+    const { _id } = req.user.user;
 
-    if (user === null) {
-      return res.status(401).json({ message: "Not authorized" });
-    }
-
-    await User.findByIdAndUpdate(user.id, { token: null }).exec();
+    await User.findByIdAndUpdate(_id, { token: null }).exec();
 
     res.status(204).end();
   } catch (error) {
@@ -94,17 +89,11 @@ async function logout(req, res, next) {
 }
 
 async function current(req, res, next) {
-  const { email } = req.user.user;
-  const user = await User.findOne({ email }).exec();
-  console.log(user)
-
-  if (user === null) {
-    return res.status(401).json({ message: "Not authorized" });
-  }
+  const { email, subscription } = req.user.user;
 
   res
   .status(200)
-  .send({ email: user.email, subscription: user.subscription });
+  .send({ email, subscription });
 }
 
 module.exports = { register, login, logout, current };
