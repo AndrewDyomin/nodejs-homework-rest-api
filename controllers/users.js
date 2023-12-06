@@ -4,9 +4,18 @@ const jimp = require("jimp");
 
 const User = require("../models/user");
 
+async function resizeImage(path) {
+  console.log(path)
+  const image = await jimp.read(path);
+
+  image.contain(250, 250);
+
+  await image.writeAsync(path);
+};
+
 async function getAvatar(req, res, next) {
   try {
-    console.log(req.user)
+    console.log(req.user);
     const user = await User.findById(req.user.user.id).exec();
 
     if (user === null) {
@@ -25,13 +34,13 @@ async function getAvatar(req, res, next) {
 
 async function uploadAvatar(req, res, next) {
   try {
+
+    await resizeImage(req.file.path);
+
     await fs.rename(
       req.file.path,
       path.join(__dirname, "..", "public/avatars", req.file.filename)
     );
-
-    const image = await jimp.read(`${req.file.path}`);
-    image.cover(250, 250);
 
     const user = await User.findByIdAndUpdate(
       req.user.user.id,
