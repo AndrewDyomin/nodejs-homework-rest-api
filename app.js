@@ -7,6 +7,7 @@ require("./db");
 
 const contactsRouter = require("./routes/api/contacts");
 const authRoutes = require("./routes/api/auth");
+const usersRoutes = require("./routes/api/users");
 const isAuth = require("./middlewares/isAuth");
 
 const app = express();
@@ -19,7 +20,8 @@ app.use(cors());
 app.use(express.json());
 
 app.use("/api/contacts", isAuth, contactsRouter);
-app.use("/users", authRoutes);
+app.use("/auth", authRoutes);
+app.use("/users", usersRoutes);
 
 app.use((req, res) => {
   res.status(404).json({ message: "Not found" });
