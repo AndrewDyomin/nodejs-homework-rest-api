@@ -2,6 +2,7 @@ const bcrypt = require("bcrypt");
 const userSchema = require("../schemas/user");
 const User = require("../models/user");
 const jwt = require("jsonwebtoken");
+const gravatar = require("gravatar")
 
 async function register(req, res, next) {
   const response = userSchema.validate(req.body, { abortEarly: false });
@@ -22,8 +23,9 @@ async function register(req, res, next) {
     }
 
     const passwordHash = await bcrypt.hash(password, 10);
+    const avatarURL = gravatar.url(email);
 
-    const newUser = await User.create({ name, email, password: passwordHash });
+    const newUser = await User.create({ name, email, password: passwordHash, avatarURL });
 
     res
       .status(201)

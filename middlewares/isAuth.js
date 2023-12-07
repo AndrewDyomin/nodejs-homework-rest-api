@@ -11,8 +11,6 @@ function isAuth(req, res, next) {
 
   const [bearer, token] = authHeader.split(" ", 2);
 
-  console.log({ bearer, token });
-
   if (bearer !== "Bearer") {
     return res.status(401).json({ "message": "Not authorized" });
   }
