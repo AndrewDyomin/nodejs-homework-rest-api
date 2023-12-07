@@ -5,7 +5,6 @@ const jimp = require("jimp");
 const User = require("../models/user");
 
 async function resizeImage(path) {
-  console.log(path)
   const image = await jimp.read(path);
 
   image.contain(250, 250);
@@ -15,7 +14,6 @@ async function resizeImage(path) {
 
 async function getAvatar(req, res, next) {
   try {
-    console.log(req.user);
     const user = await User.findById(req.user.user.id).exec();
 
     if (user === null) {
