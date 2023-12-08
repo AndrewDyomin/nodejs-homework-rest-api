@@ -8,7 +8,7 @@ const message = {
   to: email,
   from: "dyomin.andrew1@gmail.com",
   subject: "This is verification mail",
-  html: `<a href="http://localhost:3000/auth/register/verify/${verificationToken}">link</a>`,
+  html: `<a href="${process.env.DOMAIN}/auth/register/verify/${verificationToken}">link</a>`,
   text: "Node.js is awesome platform",
 };
 
