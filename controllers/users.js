@@ -3,6 +3,7 @@ const path = require("node:path");
 const jimp = require("jimp");
 
 const User = require("../models/user");
+const verifyMail = require("../helpers/verifyMail");
 
 async function resizeImage(path) {
   const image = await jimp.read(path);
@@ -56,4 +57,27 @@ async function uploadAvatar(req, res, next) {
   }
 }
 
-module.exports = { getAvatar, uploadAvatar };
+async function verify(req, res, next) {
+const { email } = req.body;
+console.log(email);
+if (email === undefined) {
+  return res.status(400).json({ "message": "Missing required field email" });
+}
+
+const user = await User.findOne({ email }).exec();
+
+if (user === null) {
+  return res.status(404).json({ "message": "User not found" });
+};
+if (user.verify) {
+  return res.status(400).json({ "message": "Verification has already been passed" });
+};
+
+const verificationToken = user.verificationToken;
+
+verifyMail(email, verificationToken);
+
+res.status(200).json({ "message": "Verification email sent" })
+};
+
+module.exports = { getAvatar, uploadAvatar, verify };
